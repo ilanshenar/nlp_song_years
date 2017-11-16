@@ -10,6 +10,8 @@ with open('lyrics.csv', 'rb') as csv_lyrics:
 	csv_reader = csv.reader(csv_lyrics, delimiter=',')
 
 	for row in csv_reader:
+		#Layout of csv: index,song,year,artist,genre,lyrics
+		#So row[0] = index, row[1] = song ....
 		curr_genre = row[4]
 		song = row[1]
 		curr_date = row[2]
