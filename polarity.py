@@ -34,7 +34,7 @@ with open('../lyrics.csv', 'rb') as csv_lyrics:
 		#So row[0] = index, row[1] = song ....
 		curr_genre = row[4]
 		curr_year = row[2]
-		if curr_genre == "Hip-Hop" and curr_year == "2006":
+		if curr_genre == "Hip-Hop" and curr_year == "2016":
 			i += 1
 			lines = row[5].split("\n")
 			lyrics = ""
@@ -87,11 +87,11 @@ def write_out(name, emotion):
 	text_file = open(name, "w")
 
 	for word in emotion:
-		text_file.write(word[0] + ": " + str(word[1]) + " Total Count: " + str(counts[word[0]]) + " Total Angry Seed: " + str(angry_count) +  "\n")
+		text_file.write(word[0] + "," + str(word[1]) + "," + str(counts[word[0]]) + "," + str(angry_count) +  "\n")
 
 	text_file.close()
 
-write_out("anger_2006", sorted_anger)
+write_out("anger_2016", sorted_anger)
 #write_out("disgust", sorted_disgust)
 #write_out("happy", sorted_happy)
 #write_out("horror", sorted_horror)
