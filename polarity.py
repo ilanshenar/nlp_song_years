@@ -13,6 +13,8 @@ horror = {}
 sad = {}
 surprise = {}
 
+angry_count = 1
+
 i = 0
 lyric_list = []
 angry_seeds = ["angry", "ugly", "mad", "anxious", "jaded", "ignorant", "frustrated", "jealous", "emotional", "insecure", "hungry", "confused", "cynical"]
@@ -32,7 +34,7 @@ with open('../lyrics.csv', 'rb') as csv_lyrics:
 		#So row[0] = index, row[1] = song ....
 		curr_genre = row[4]
 		curr_year = row[2]
-		if curr_genre == "Hip-Hop" and curr_year == "2016":
+		if curr_genre == "Hip-Hop" and curr_year == "2006":
 			i += 1
 			lines = row[5].split("\n")
 			lyrics = ""
@@ -60,6 +62,7 @@ with open('../lyrics.csv', 'rb') as csv_lyrics:
 					counts[lyric] += 1
 				if any(angry_word in lyric_list for angry_word in angry_seeds):
 					anger[lyric] += 1
+					angry_count += 1
 			#	if any(disgust_word in lyric_list for disgust_word in disgust_seeds):
 			#		disgust[lyric] += 1
 			#	if any(happy_word in lyric_list for happy_word in happy_seeds):
@@ -84,11 +87,11 @@ def write_out(name, emotion):
 	text_file = open(name, "w")
 
 	for word in emotion:
-		text_file.write(word[0] + ": " + str(word[1]) + "\n")
+		text_file.write(word[0] + ": " + str(word[1]) + " Total Count: " + str(counts[word[0]]) + " Total Angry Seed: " + str(angry_count) +  "\n")
 
 	text_file.close()
 
-write_out("anger_2016", sorted_anger)
+write_out("anger_2006", sorted_anger)
 #write_out("disgust", sorted_disgust)
 #write_out("happy", sorted_happy)
 #write_out("horror", sorted_horror)
