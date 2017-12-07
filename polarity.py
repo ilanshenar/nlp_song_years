@@ -1,10 +1,12 @@
 from __future__ import division
+import numpy as np
 import operator 
 import math
 import collections
 import csv
 from string import punctuation
 import matplotlib.pyplot as plt
+
 
 emotions = ["angry", "disgust", "happy", "horror", "sad", "surprise"]
 year_span = ["2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"]
@@ -170,19 +172,20 @@ year_emot_score = {y : {e : sum(year_emotion_PMI_song[y][e]) / len(year_emotion_
 #year_Anger_score = {x : sum(year_PMI_song_angry[x]) / len(year_PMI_song_angry[x]) for x in year_span}
 
 print (year_emot_score)
-   
-"""    
-pts = []    
-for year in year_span:
-    pts.append(year_Anger_score[year])
-print(pts)
 
-plt.plot(pts, "r-")
-plt.axis([2006, 2016, min(pts) - 10, max(pts) + 10])
-ax = plt.gca()
-ax.set_autoscale_on(False)
-plt.show()
-"""
+for emot in emotions: 
+    pts = []    
+    for year in year_span:
+        pts.append(year_emot_score[year][emot])
+
+    plt.plot(pts, "r-")
+    plt.title(emot + " Emotion Vector Over Time")
+    plt.gca().set_xticks(np.arange(len(year_span))) #label locations
+    plt.gca().set_xticklabels(year_span) #label values
+    plt.savefig("./Figures/" + emot + ".pdf")
+    plt.close()
+
+
             
             
 """
