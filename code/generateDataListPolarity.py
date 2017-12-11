@@ -14,9 +14,9 @@ minlen = 25
 
 min_length = 1500
 
-f = open('data.txt', 'w')
+f = open('../text/data.txt', 'w')
 
-with open('lyrics.csv', 'rb') as csv_lyrics:
+with open('../lyrics.csv', 'rb') as csv_lyrics:
     csv_reader = csv.reader(csv_lyrics, delimiter=',')
     for row in csv_reader:
         #Layout of csv: index,song,year,artist,genre,lyrics
@@ -27,9 +27,9 @@ with open('lyrics.csv', 'rb') as csv_lyrics:
         if curr_year in year_span:
             total_year_songs[curr_year] += 1
         
-        if curr_genre in genres and curr_year in year_span:
-            if year_song_count[curr_genre][curr_year] >= max_num_songs:
-                continue
+        #if curr_genre in genres and curr_year in year_span:
+            #if year_song_count[curr_genre][curr_year] >= max_num_songs:
+                #continue
             
            
             
@@ -40,7 +40,7 @@ with open('lyrics.csv', 'rb') as csv_lyrics:
             total += 1    
                 
                 
-            year_song_count[curr_genre][curr_year] += 1
+            #year_song_count[curr_genre][curr_year] += 1
             
             lyrics = ""
 
@@ -64,6 +64,7 @@ with open('lyrics.csv', 'rb') as csv_lyrics:
             lyrics = ""
             for lyric in lyric_list:
                 lyrics += lyric + " "
+            #f.write(curr_year + "," + curr_genre + "," + lyrics + "\n")
             f.write(curr_year + "," + curr_genre + "," + lyrics + "\n")
 f.close()
 print(total)

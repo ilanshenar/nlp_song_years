@@ -5,14 +5,16 @@ from sklearn import svm
 
 year_span = ["2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"]
 
-num_test = 15000
+num_test = 20000
 
-f = open('emotion_vector.txt', 'r')
+f = open('../text/emotion_vector.txt', 'r')
 data = f.read().split("\n")
-data = [x.split() for x in data]
+data = [x.split(",") for x in data]
 data.pop(len(data) - 1)
 
+print(data[0])
 random.shuffle(data)
+print(data[0])
 
 train = data[num_test + 1:]
 test = data[:num_test]
@@ -37,12 +39,17 @@ clf = svm.SVR()
 clf.fit(train_x, train_y)
 pred_y = clf.predict(test_x)
 
+correctly_classified = {y: 0 for y in year_span}
+
 acc = 0
 for i in range(len(pred_y)):
     #print(pred_y[i], test_y[i])
-    if math.fabs(test_y[i] - pred_y[i]) < 3:
+    if math.fabs(test_y[i] - pred_y[i]) < 2:
         acc += 1
+        correctly_classified[str(test_y[i])] += 1
 acc /= len(pred_y)
 print(acc)
+
+print (correctly_classified)
 
 
