@@ -15,6 +15,10 @@ year_songs = {x : [] for x in year_span}
 year_song_count = {x : 0 for x in year_span}
 year_lyric_count = {x : {} for x in year_span}
 
+total_year_lyric_count = {y: 0 for y in year_span}
+
+
+
 year_emotion_lyric_count = {y : {e : {} for e in emotions} for y in year_span}
 year_emotion_count = {y : {e : 1 for e in emotions} for y in year_span}
 
@@ -58,7 +62,8 @@ for song in data:
             year_emotion_count[year][emot] += 1
             #emotion_count[emot] += 1
     for lyric in lyric_list: 
-        if lyric not in lyric_count:
+        total_year_lyric_count[year] += 1
+        if lyric not in year_lyric_count[year]:
             year_lyric_count[year][lyric] = 1 
             #lyric_count[lyric] = 1
             for emot in emotions: 
@@ -85,10 +90,11 @@ lyric_emotion_PMI = {e : {} for e in emotions}
 for year in year_span:
     for lyric in year_lyric_count[year]:     
         for emot in emotions:     
-            co_occ = year_emotion_lyric_count[year][emot][lyric] / year_song_count[year]
-            occ_x = year_lyric_count[year][lyric] / year_song_count[year]
-            occ_y = year_emotion_count[year][emot] / year_song_count[year]
+            co_occ = year_emotion_lyric_count[year][emot][lyric] / total_year_lyric_count[year]
+            occ_x = year_lyric_count[year][lyric] / total_year_lyric_count[year]
+            occ_y = year_emotion_count[year][emot] / total_year_lyric_count[year]
             year_emotion_PMI_lyric[year][emot][lyric] = math.log(co_occ / (occ_x * occ_y))
+            print("Emotion: " + emot + " lyric: " + lyric + " Year lyric count: " + str(year_lyric_count[year][lyric]) + " Year: " + str(year) + " Year emotion count: " + str(year_emotion_count[year][emot]) + " Co_occ: " + str(co_occ) + " occ_x: " + str(occ_x) + " occ_y: " + str(occ_y))
 
 #for lyric in lyric_count:
 #    for emot in emotions: 
@@ -99,18 +105,18 @@ for year in year_span:
             
 print("Word Polarities Calculated")            
 
-#for year in year_span:
-#    for emot in emotions: 
-#        print (year, emot)
-#        results = collections.OrderedDict(sorted(year_emotion_PMI_lyric[year][emot].items(),reverse=True, key= lambda t: t[1]))
-#        i = 0
-#        for words, val in results.items():
-#            print (words, val)
-#            i += 1
-#            if i >= 20:
-#                break
-#        print ("*" * 50)
-#    print ("_" * 10)
+for year in year_span:
+    for emot in emotions: 
+        print (year, emot)
+        results = collections.OrderedDict(sorted(year_emotion_PMI_lyric[year][emot].items(),reverse=True, key= lambda t: t[1]))
+        i = 0
+        for words, val in results.items():
+            print (words, val)
+            i += 1
+            if i >= 20:
+                break
+        print ("*" * 50)
+    print ("_" * 10)
         
 
 year_emotion_PMI = {y : {e : 0 for e in emotions} for y in year_span}

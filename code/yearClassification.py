@@ -5,19 +5,29 @@ from sklearn import svm
 
 year_span = ["2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"]
 
-num_test = 20000
+#num_test = 50
+max_num_songs_from_year = 20
 
-f = open('../text/emotion_vector.txt', 'r')
+f = open('../text/emotion_vector_50spy.txt', 'r')
 data = f.read().split("\n")
 data = [x.split(",") for x in data]
 data.pop(len(data) - 1)
 
-print(data[0])
 random.shuffle(data)
-print(data[0])
 
-train = data[num_test + 1:]
-test = data[:num_test]
+train_year_count = {y: 0 for y in year_span}
+
+train = []
+test = []
+
+for d in data:
+    if train_year_count[str(d[1])] >= max_num_songs_from_year:
+        train.append(d)
+    else:
+        test.append(d)
+        train_year_count[str(d[1])] += 1
+        
+print (train_year_count)
 
 test_x = []
 test_y = []
