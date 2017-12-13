@@ -3,7 +3,7 @@ from string import punctuation
 from stop_words import get_stop_words
 
 STOP_WORDS = get_stop_words('en')
-max_num_songs = 10000
+max_num_songs_in_year = 50
 year_span = ["2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"]
 genres = ["Hip-Hop", "Pop", "Rock", "Country", "R&B"]
 
@@ -16,7 +16,7 @@ minlen = 25
 
 min_length = 1500
 
-f = open('../text/data.txt', 'w')
+f = open('../text/data_50spy.txt', 'w')
 
 with open('../lyrics.csv', 'rb') as csv_lyrics:
     csv_reader = csv.reader(csv_lyrics, delimiter=',')
@@ -26,7 +26,7 @@ with open('../lyrics.csv', 'rb') as csv_lyrics:
         curr_genre = row[4]
         curr_year = row[2]
         
-        if curr_year in year_span:
+        if curr_year in year_span and not total_year_songs[curr_year] >= max_num_songs_in_year:
             total_year_songs[curr_year] += 1
         
         #if curr_genre in genres and curr_year in year_span:
@@ -60,8 +60,8 @@ with open('../lyrics.csv', 'rb') as csv_lyrics:
                     lyric_list.remove(lyric)
                     continue
                 if lyric in STOP_WORDS:
-                	lyric_list.remove(lyric)
-                	continue
+                    lyric_list.remove(lyric)
+                    continue
             
             if len(lyric_list) < min_length:
                 min_length = len(lyric_list)
