@@ -33,7 +33,7 @@ seeds = {"angry" : ["angry", "ugly", "mad", "anxious", "jaded", "ignorant", "fru
          "surprise" : ["surprise", "warning", "shame", "mistake", "fool", "joke", "mystery", "thrill", "gift", "coincidence", "chance"]}
 #add words like "warn", "anger", "terrorize"????
 
-f = open("../text/data.txt", "r")
+f = open("../text/data_50spy.txt", "r")
 data = [x.split(",") for x in f.read().split("\n")]
 f.close()
 
@@ -55,22 +55,22 @@ for song in data:
     for emot in emotions: 
         if any(x in lyric_list for x in seeds[emot]):
             is_emot[emot] = True
-            #year_emotion_count[year][emot] += 1
-            emotion_count[emot] += 1
+            year_emotion_count[year][emot] += 1
+            #emotion_count[emot] += 1
     for lyric in lyric_list: 
         if lyric not in lyric_count:
-            #year_lyric_count[year][lyric] = 1 
-            lyric_count[lyric] = 1
+            year_lyric_count[year][lyric] = 1 
+            #lyric_count[lyric] = 1
             for emot in emotions: 
-                #year_emotion_lyric_count[year][emot][lyric] = 1
-                emotion_lyric_count[emot][lyric] = 1
+                year_emotion_lyric_count[year][emot][lyric] = 1
+                #emotion_lyric_count[emot][lyric] = 1
         else:
-            #year_lyric_count[year][lyric] += 1
-            lyric_count[lyric] += 1
+            year_lyric_count[year][lyric] += 1
+            #lyric_count[lyric] += 1
             for emot in emotions: 
                 if is_emot[emot]:
-                    #year_emotion_lyric_count[year][emot][lyric] += 1
-                    emotion_lyric_count[emot][lyric] += 1
+                    year_emotion_lyric_count[year][emot][lyric] += 1
+                    #emotion_lyric_count[emot][lyric] += 1
 
 print (year_song_count)                    
                     
@@ -81,28 +81,37 @@ song_emotion_PMI = {}
 
 
 lyric_emotion_PMI = {e : {} for e in emotions}
-          
-#for song in data: 
-#    if len(song) < 3:
-#        continue
-    
-#    year = song[0]
-#    lyrics = song[2].split()
-#    for emot in emotions:   
-#        for lyric in lyrics:     
-#            co_occ = year_emotion_lyric_count[year][emot][lyric] / year_song_count[year]
-#            occ_x = year_lyric_count[year][lyric] / year_song_count[year]
-#            occ_y = year_emotion_count[year][emot] / year_song_count[year]
-#            year_emotion_PMI_lyric[year][emot][lyric] = math.log(co_occ / (occ_x * occ_y))
+       
+for year in year_span:
+    for lyric in year_lyric_count[year]:     
+        for emot in emotions:     
+            co_occ = year_emotion_lyric_count[year][emot][lyric] / year_song_count[year]
+            occ_x = year_lyric_count[year][lyric] / year_song_count[year]
+            occ_y = year_emotion_count[year][emot] / year_song_count[year]
+            year_emotion_PMI_lyric[year][emot][lyric] = math.log(co_occ / (occ_x * occ_y))
 
-for lyric in lyric_count:
-    for emot in emotions: 
-        co_occ = emotion_lyric_count[emot][lyric] / song_count
-        occ_x = lyric_count[lyric] / song_count
-        occ_y = emotion_count[emot] / song_count
-        lyric_emotion_PMI[emot][lyric] = math.log(co_occ / (occ_x * occ_y))
+#for lyric in lyric_count:
+#    for emot in emotions: 
+#        co_occ = emotion_lyric_count[emot][lyric] / song_count
+#        occ_x = lyric_count[lyric] / song_count
+#        occ_y = emotion_count[emot] / song_count
+#        lyric_emotion_PMI[emot][lyric] = math.log(co_occ / (occ_x * occ_y))
             
 print("Word Polarities Calculated")            
+
+#for year in year_span:
+#    for emot in emotions: 
+#        print (year, emot)
+#        results = collections.OrderedDict(sorted(year_emotion_PMI_lyric[year][emot].items(),reverse=True, key= lambda t: t[1]))
+#        i = 0
+#        for words, val in results.items():
+#            print (words, val)
+#            i += 1
+#            if i >= 20:
+#                break
+#        print ("*" * 50)
+#    print ("_" * 10)
+        
 
 year_emotion_PMI = {y : {e : 0 for e in emotions} for y in year_span}
 
@@ -112,20 +121,14 @@ for song in data:
         continue
     year = song[0]
     lyrics = song[2].split()
-    max_PMI_emot = {e : -100000 for e in emotions}
-    for emot in emotions: 
-        for lyric in lyrics:
-            if lyric not in lyric_emotion_PMI[emot]: 
-                continue
-            max_PMI_emot[emot] = max(max_PMI_emot[emot], math.fabs(lyric_emotion_PMI[emot][lyric]))
 
     song_emotion_PMI[i] = {}
     for emot in emotions: 
         PMI_sum_emot = 0
         for lyric in lyrics:
-            if lyric not in lyric_emotion_PMI[emot]: 
+            if lyric not in year_emotion_PMI_lyric[year][emot]: 
                 continue
-            PMI_sum_emot += (lyric_emotion_PMI[emot][lyric] / max_PMI_emot[emot])
+            PMI_sum_emot +=  year_emotion_PMI_lyric[year][emot][lyric]
         song_emotion_PMI[i][emot] = PMI_sum_emot
         year_emotion_PMI[year][emot] += PMI_sum_emot
     i += 1
