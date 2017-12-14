@@ -37,7 +37,7 @@ seeds = {"angry" : ["angry", "ugly", "mad", "anxious", "jaded", "ignorant", "fru
          "surprise" : ["surprise", "warning", "shame", "mistake", "fool", "joke", "mystery", "thrill", "gift", "coincidence", "chance"]}
 #add words like "warn", "anger", "terrorize"????
 
-f = open("../text/data_50spy.txt", "r")
+f = open("../text/data_1500spy.txt", "r")
 data = [x.split(",") for x in f.read().split("\n")]
 f.close()
 
@@ -88,13 +88,15 @@ song_emotion_PMI = {}
 lyric_emotion_PMI = {e : {} for e in emotions}
        
 for year in year_span:
-    for lyric in year_lyric_count[year]:     
+    for lyric in year_lyric_count[year]: 
+        if year_lyric_count[year][lyric] < 30:
+            continue  
         for emot in emotions:     
             co_occ = year_emotion_lyric_count[year][emot][lyric] / total_year_lyric_count[year]
             occ_x = year_lyric_count[year][lyric] / total_year_lyric_count[year]
             occ_y = year_emotion_count[year][emot] / total_year_lyric_count[year]
             year_emotion_PMI_lyric[year][emot][lyric] = math.log(co_occ / (occ_x * occ_y))
-            print("Emotion: " + emot + " lyric: " + lyric + " Year lyric count: " + str(year_lyric_count[year][lyric]) + " Year: " + str(year) + " Year emotion count: " + str(year_emotion_count[year][emot]) + " Co_occ: " + str(co_occ) + " occ_x: " + str(occ_x) + " occ_y: " + str(occ_y))
+            #print("Emotion: " + emot + " lyric: " + lyric + " Year lyric count: " + str(year_lyric_count[year][lyric]) + " Year: " + str(year) + " Year emotion count: " + str(year_emotion_count[year][emot]) + " Co_occ: " + str(co_occ) + " occ_x: " + str(occ_x) + " occ_y: " + str(occ_y))
 
 #for lyric in lyric_count:
 #    for emot in emotions: 
@@ -167,7 +169,7 @@ year_emot_score = {y : {e : year_emotion_PMI[y][e] / year_song_count[y] for e in
 
 print ("Year Polarities Calculated")
 
-f = open('../text/emotion_vector.txt', 'w')
+f = open('../text/emotion_vector1500.txt', 'w')
 i = 0
 
 for song in data: 
