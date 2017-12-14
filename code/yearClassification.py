@@ -6,7 +6,7 @@ from sklearn import svm
 year_span = ["2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"]
 
 #num_test = 50
-max_num_songs_from_year = 20
+max_num_songs_from_year = 50
 
 f = open('../text/emotion_vector1500.txt', 'r')
 data = f.read().split("\n")
