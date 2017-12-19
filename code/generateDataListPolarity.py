@@ -1,7 +1,10 @@
+from __future__ import division
 import csv
 from string import punctuation
 from stop_words import get_stop_words
+import enchant
 
+english = enchant.Dict("en_US")
 STOP_WORDS = get_stop_words('en')
 max_num_songs_in_year = 1500
 year_span = ["2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"]
@@ -57,14 +60,21 @@ with open('../lyrics.csv', 'rb') as csv_lyrics:
 
             lyrics = lyrics.translate(None, punctuation)
             lyric_list = []
+            non_english_count = 0
             for lyric in lyrics.split(" "):
-                
+                if non_english_count > (len(lyrics))/2:
+                    total_year_songs[curr_year] -= 1 
+                    break
                 if lyric == punctuation:
                     continue
                 if lyric == "":
                     continue
                 if lyric in STOP_WORDS:
                     continue
+                if english.check(lyric) == False:
+                    non_english_count += 1
+                    continue
+
                 lyric_list.append(str(lyric))
             if len(lyric_list) < min_length:
                 min_length = len(lyric_list)

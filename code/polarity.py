@@ -6,10 +6,8 @@ import collections
 import csv
 from string import punctuation
 import matplotlib.pyplot as plt
-import enchant
 
 
-english = enchant.Dict("en_US")
 emotions = ["angry", "disgust", "happy", "horror", "sad", "surprise"]
 year_span = ["2006", "2007", "2008", "2009", "2010", "2011", "2012", "2013", "2014", "2015", "2016"]
 year_songs = {x : [] for x in year_span}
@@ -64,8 +62,6 @@ for song in data:
             year_emotion_count[year][emot] += 1
             #emotion_count[emot] += 1
     for lyric in lyric_list: 
-        if english.check(lyric) == False:
-            continue
         total_year_lyric_count[year] += 1
         if lyric not in year_lyric_count[year]:
             year_lyric_count[year][lyric] = 1 
