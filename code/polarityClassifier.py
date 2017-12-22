@@ -1,6 +1,12 @@
 from __future__ import division
 import math
 import sklearn
+import numpy as np
+from sklearn import linear_model
+from sklearn import svm
+from sklearn import neighbors
+from sklearn import naive_bayes
+
 from collections import Counter
 
 emotions = ["angry", "disgust", "happy", "horror", "sad", "surprise"]
@@ -14,17 +20,18 @@ seeds = {"angry" : ["angry", "ugly", "mad", "anxious", "jaded", "ignorant", "fru
 class PolarityClassifier:
     global emotions, seeds
     
-    ML_classifiers = [sklearn.linear_model.Perceptron(), sklearn.svm.SVC(), sklearn.neighbors.KNeighborsClassifier(), sklearn.linear_model.LogisticRegression(), sklearn.naive_bayes.GaussianNB()]
+    ML_classifiers = [sklearn.neighbors.KNeighborsClassifier(), sklearn.linear_model.LogisticRegression(), sklearn.naive_bayes.GaussianNB()]
+    radius = 5
     
     def __init__(self):
         self.song_count = 0
         self.emotion_count = {e: 0 for e in emotions}
-        self.total_lyrics_count = 0
+        self.total_lyric_count = 0
         self.lyric_count = {}
         self.emotion_lyric_count = {e : {} for e in emotions}
         self.emotion_PMI_lyric = {e : {} for e in emotions}
        
-    def generateEmotionVec(X):
+    def generateEmotionVec(self, X):
         song_emotion_PMI = []
         i = 0
         for x in X: 
@@ -32,10 +39,14 @@ class PolarityClassifier:
             for emot in emotions: 
                 PMI_sum_emot = 0
                 for lyric in x.split():
-                    if lyric not in self.emotion_PMI_lyric[emot]: 
+                    if lyric not in self.emotion_PMI_lyric[emot] or self.lyric_count[lyric] < 100: 
                         continue
                     PMI_sum_emot +=  self.emotion_PMI_lyric[emot][lyric]
-                self.song_emotion_PMI[i].append(PMI_sum_emot)
+                song_emotion_PMI[i].append(PMI_sum_emot)
+                
+                max_emot = max(song_emotion_PMI[i])
+                song_emotion_PMI[i] = [y / max_emot for y in song_emotion_PMI[i]]
+                
             i += 1
         return song_emotion_PMI
     
@@ -43,57 +54,84 @@ class PolarityClassifier:
         
         for x in X:     
             lyric_list = x.split()
-            is_emot = {e : False for e in emotions}
-            for emot in emotions: 
-                if any(x in lyric_list for x in seeds[emot]):
-                    is_emot[emot] = True
-
-            for lyric in lyric_list: 
-                self.total_lyrics_count += 1
-                for emot in emotions: 
-                    if lyric in seeds[emot]:
-                        self.emotion_count[emot] += 1
+            num_words = len(lyric_list)
+            
+            for i in range(num_words):
+                lyric = lyric_list[i]
+                self.total_lyric_count += 1
+                
                 if lyric not in self.lyric_count:
                     self.lyric_count[lyric] = 1
                     for emot in emotions: 
-                        self.emotion_lyric_count[emot][lyric] = 1    
-                else:
-                    self.lyric_count[lyric] += 1
-                    for emot in emotions: 
-                        if is_emot[emot]:
-                            emotion_lyric_count[emot][lyric] += 1
+                        self.emotion_lyric_count[emot][lyric] = 1 
+                
+                self.lyric_count[lyric] += 1
+                local_lyrics = lyric_list[max(0, i - self.radius) : min(num_words, i + self.radius)]
+                for emot in emotions: 
+                    if lyric in seeds[emot]:
+                        self.emotion_count[emot] += 1
+                    if any(x in local_lyrics for x in seeds[emot]):
+                        self.emotion_lyric_count[emot][lyric] += 1
+            
+            
+            
+            
+            
+            #is_emot = {e : False for e in emotions}
+            #for emot in emotions: 
+            #    if any(x in lyric_list for x in seeds[emot]):
+            #        is_emot[emot] = True
+
+            #for lyric in lyric_list: 
+            #    self.total_lyric_count += 1
+            #    for emot in emotions: 
+                    
+            #    if lyric not in self.lyric_count:
+            #        self.lyric_count[lyric] = 1
+            #        for emot in emotions: 
+            #            self.emotion_lyric_count[emot][lyric] = 1    
+            #    else:
+            #        self.lyric_count[lyric] += 1
+            #        for emot in emotions: 
+            #            if is_emot[emot]:
+            #                self.emotion_lyric_count[emot][lyric] += 1
                          
-        for words in self.lyric_count:
+        for lyric in self.lyric_count:
             for emot in emotions: 
-                co_occ = self.emotion_lyric_count[emot][lyric] / total_lyric_count
-                occ_x = self.lyric_count[lyric] / total_lyric_count
-                occ_y = emotion_count[emot] / total_lyric_count
+                co_occ = self.emotion_lyric_count[emot][lyric] / self.total_lyric_count
+                occ_x = self.lyric_count[lyric] / self.total_lyric_count
+                occ_y = self.emotion_count[emot] / self.total_lyric_count
+                #print (lyric + ": " + emot + ": " + str(math.log(co_occ / (occ_x * occ_y))))
                 self.emotion_PMI_lyric[emot][lyric] = math.log(co_occ / (occ_x * occ_y))
         
-        emot_vec = generateEmotionVec(X)
         
-        for classifier in ML_classifiers:
+        emot_vec = self.generateEmotionVec(X)
+        print (emot_vec)
+        
+        for classifier in self.ML_classifiers:
             classifier.fit(emot_vec, y)
         
-    def predict(X):
+    def predict(self, X):
         pred = []
         
-        emot_vec = generateEmotionVec(X)
-        pred_vec = []
+        emot_vec = self.generateEmotionVec(X)
+        pred_vec = [[] for j in range(len(X))]
         
-        i = 0
-        for classifier in ML_classifiers:
-            pred_vec.append([])
-            pred_vec[i].append(classifier.predict(emot_vec)
-            i += 1
+        for classifier in self.ML_classifiers:
+            p = classifier.predict(emot_vec)
+            #print (p)
+            for j in range(len(X)): 
+                pred_vec[j].append(p[j]) 
         
-        print (len(pred_vec))                       
+        #print (len(pred_vec))                       
         for i in range(len(X)):
-            preds = [pred_vec[u][i] for u in range(len(pred_vec))]
-            b = Counter(preds)
-            pred.append(b.most_common(1))                   
-                               
+            counts = np.bincount(pred_vec[i])
+            pred.append(np.argmax(counts))
+                  
+        #print (pred_vec)                       
         return pred
+    
+    
 
                                
         
